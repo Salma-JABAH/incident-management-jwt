@@ -1,0 +1,31 @@
+digraph G {
+  rankdir=TB; nodesep=0.35; ranksep=0.45;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, color="#334155"];
+  edge [fontname="Helvetica", fontsize=11, color="#334155"];
+
+  subgraph cluster_front {
+    label="Frontend React (http://localhost:5173)"; fontname="Helvetica-Bold"; style="rounded,filled"; fillcolor="#eff6ff"; color="#2563eb";
+    pages [label="Pages\nLogin - Dashboard - Incidents - Users", fillcolor="#dbeafe"];
+    routes [label="ProtectedRoute / RoleRoute", fillcolor="#dbeafe"];
+    axios [label="Axios + interceptors\n(Bearer JWT, gestion 401, refresh)", fillcolor="#dbeafe"];
+    pages -> routes -> axios [style=invis];
+  }
+
+  subgraph cluster_back {
+    label="Backend Spring Boot (http://localhost:8080)"; fontname="Helvetica-Bold"; style="rounded,filled"; fillcolor="#f0fdf4"; color="#16a34a";
+    cors [label="CORS", fillcolor="#dcfce7"];
+    jwtf [label="JwtFilter\n(valide le token, charge l'utilisateur)", fillcolor="#bbf7d0"];
+    sec [label="Spring Security\n(STATELESS, hasRole, @PreAuthorize)", fillcolor="#bbf7d0"];
+    ctl [label="REST Controllers\n(/auth, /api/profile, /api/incidents, /api/admin)", fillcolor="#dcfce7"];
+    svc [label="Services\n(regles metier, controle du proprietaire)", fillcolor="#dcfce7"];
+    repo [label="Repositories (Spring Data JPA)", fillcolor="#dcfce7"];
+    adv [label="GlobalExceptionHandler\n(@RestControllerAdvice)", fillcolor="#fef9c3"];
+    cors -> jwtf -> sec -> ctl -> svc -> repo;
+    ctl -> adv [style=dashed, label="erreurs"];
+  }
+
+  db [label="H2 (dev) / MySQL", shape=cylinder, fillcolor="#fde68a"];
+
+  axios -> cors [label="HTTP / JSON\nAuthorization: Bearer <JWT>", penwidth=2, color="#2563eb"];
+  repo -> db [label="JPA / Hibernate"];
+}

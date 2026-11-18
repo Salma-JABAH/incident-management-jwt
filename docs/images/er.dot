@@ -1,0 +1,32 @@
+digraph ER {
+  rankdir=LR; nodesep=0.6; ranksep=1.1;
+  node [shape=plaintext, fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=10, color="#334155"];
+
+  User [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4" color="#334155">
+    <tr><td bgcolor="#2563eb"><font color="white"><b>User (users)</b></font></td></tr>
+    <tr><td align="left">id : Long (PK)<br align="left"/>fullName : String<br align="left"/>email : String (unique)<br align="left"/>password : String (BCrypt)<br align="left"/>role : Role<br align="left"/>enabled : boolean<br align="left"/>createdAt : LocalDateTime<br align="left"/></td></tr></table>>];
+
+  Incident [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4" color="#334155">
+    <tr><td bgcolor="#16a34a"><font color="white"><b>Incident (incidents)</b></font></td></tr>
+    <tr><td align="left">id : Long (PK)<br align="left"/>title : String<br align="left"/>description : String<br align="left"/>category : Category<br align="left"/>priority : Priority<br align="left"/>status : Status<br align="left"/>createdAt, updatedAt<br align="left"/>created_by_id (FK -&gt; User)<br align="left"/>assigned_to_id (FK -&gt; User, nullable)<br align="left"/></td></tr></table>>];
+
+  Hist [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4" color="#334155">
+    <tr><td bgcolor="#f59e0b"><font color="white"><b>IncidentHistory</b></font></td></tr>
+    <tr><td align="left">id : Long (PK)<br align="left"/>message : String<br align="left"/>createdAt : LocalDateTime<br align="left"/>incident_id (FK)<br align="left"/></td></tr></table>>];
+
+  Com [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4" color="#334155">
+    <tr><td bgcolor="#f59e0b"><font color="white"><b>IncidentComment</b></font></td></tr>
+    <tr><td align="left">id : Long (PK)<br align="left"/>content : String<br align="left"/>createdAt : LocalDateTime<br align="left"/>incident_id (FK)<br align="left"/>author_id (FK -&gt; User)<br align="left"/></td></tr></table>>];
+
+  RT [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4" color="#334155">
+    <tr><td bgcolor="#7c3aed"><font color="white"><b>RefreshToken</b></font></td></tr>
+    <tr><td align="left">id : Long (PK)<br align="left"/>token : String (unique)<br align="left"/>expiresAt : Instant<br align="left"/>revoked : boolean<br align="left"/>user_id (FK)<br align="left"/></td></tr></table>>];
+
+  User -> Incident [label="1 --- *  createdBy\n(ManyToOne LAZY)", arrowhead=crow, dir=both, arrowtail=tee];
+  Incident -> User [label="* --- 0..1  assignedTo\n(ManyToOne LAZY)", arrowhead=tee, arrowtail=crow, dir=both, style=dashed, constraint=false];
+  Incident -> Hist [label="1 --- *\n(OneToMany)", arrowhead=crow, dir=both, arrowtail=tee];
+  Incident -> Com [label="1 --- *\n(OneToMany)", arrowhead=crow, dir=both, arrowtail=tee];
+  User -> Com [label="1 --- *  author", arrowhead=crow, dir=both, arrowtail=tee, constraint=false];
+  User -> RT [label="1 --- *", arrowhead=crow, dir=both, arrowtail=tee];
+}
